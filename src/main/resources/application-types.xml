@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="auth" format="json">
+      <types:shape format="weave" example="examples/authorization.json"><![CDATA[%dw 2.0
+
+type auth = {|
+  Users: Array<{|    id: String,     allowedMethods: Array<String>, 
+    allowedResources: Array<String>
+  |}>
+|} {"example": "{\"Users\":[{\"id\":\"929328382\",\"allowedMethods\":[\"PUT\",\"GET\"],\"allowedResources\":[\"\/firstclient\",\"\/secondClient\"]},{\"id\":\"929328382\",\"allowedMethods\":[\"PUT\",\"GET\"],\"allowedResources\":[\"\/firstclient\",\"\/secondClient\"]}]}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="preview" format="java">
+      <types:shape format="raml"><![CDATA[#%RAML 1.0 DataType
+type: boolean]]></types:shape>
+    </types:type>
+    <types:type name="id" format="java">
+      <types:shape format="raml"><![CDATA[#%RAML 1.0 DataType
+type: string]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#a994191e-7aa3-487b-9efb-8455c3bc0f6b">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="auth"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:variables>
+          <types:variable name="results" type="preview"/>
+        </types:variables>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#b2f9a1d4-2979-42e9-9300-bd760ee8ccd9">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:variables>
+          <types:variable name="client_id" type="id"/>
+        </types:variables>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#b022cc72-128c-419f-8382-5fb34c71cc67">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="auth"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

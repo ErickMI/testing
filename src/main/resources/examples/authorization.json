@@ -1,0 +1,26 @@
+{
+	"Users": [
+		{
+			"id": "929328382",
+			"allowedMethods": [
+				"PUT",
+				"GET"
+			],
+			"allowedResources": [
+				"/firstclient",
+				"/secondClient"
+			]
+		},
+		{
+			"id": "929328382",
+			"allowedMethods": [
+				"PUT",
+				"GET"
+			],
+			"allowedResources": [
+				"/firstclient",
+				"/secondClient"
+			]
+		}
+	]
+}

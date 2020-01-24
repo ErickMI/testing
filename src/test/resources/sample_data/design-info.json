@@ -1,0 +1,9 @@
+{
+  "sampleData": {
+    "a994191e-7aa3-487b-9efb-8455c3bc0f6b": {
+      "vars-resource": "sample_data/defaultstringtype.dwl",
+      "vars-client_secret": "sample_data/defaultstringtype_1.dwl",
+      "vars-method": "sample_data/defaultstringtype_2.dwl"
+    }
+  }
+}

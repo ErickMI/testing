@@ -1,0 +1,51 @@
+allowedMethods: [PUT,POST]
+allowedResources: ' '
+Json: '{
+  "Users": [
+    {
+      "id": "99293283185",
+      "allowedMethods": [
+        "GET"
+      ],
+      "allowedResources": [
+        "/secondClient",
+        "/all"
+      ]
+    },
+    {
+      "id": "99293283186",
+      "allowedMethods": [
+        "GET",
+        "POST"
+      ],
+      "allowedResources": [
+        "/all",
+        "/firstclient"
+      ]
+    },
+    {
+      "id": "99293283187",
+      "allowedMethods": [
+        "PUT",
+        "GET"
+      ],
+      "allowedResources": [
+        "/firstclient",
+        "/secondClient"
+      ]
+    },
+    {
+      "id": "09120912",
+      "allowedMethods": [
+        "POST",
+        "PUT"
+      ],
+      "allowedResources": [
+        "/firstclients",
+        "/secondClients",
+        "/alli"
+        
+      ]
+    }
+  ]
+}'

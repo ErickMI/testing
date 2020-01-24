@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="0f6c50d9-c015-4c39-becc-66ff24cb966e" basePath="/api/new">
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="98c28007-ad87-4cb5-a1d3-ef49c0b97ac3" file="properties.yaml" />
+	<flow name="io-custmpolicy-testFlow" doc:id="0597157e-f572-4a23-8c55-93a0be267010" >
+		<http:listener doc:name="Listener" doc:id="6cf96751-9ea2-4872-aa67-129d4fb714e7" config-ref="HTTP_Listener_config" path="/all"/>
+		<logger level="INFO" doc:name="Logger" doc:id="0d83e78b-5294-4d76-8d51-144f50fd65c6" message="-****${java.runtime.name}*****"/>
+		<choice doc:name="Choice" doc:id="a9e2d0fc-8d91-400a-ae85-6990d1d4a922" >
+			<when expression="#[attributes.headers['authorization'] != null]">
+				<set-variable value="#[read(Mule::p('Json'), &quot;application/json&quot;)]" doc:name="Set Variable" doc:id="b777aacf-7143-4398-ab31-ba47c718d6a4" variableName="json" />
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Logger" doc:id="c0360476-4051-4be6-a7e1-2480e0386a7c" message="error"/>
+			</otherwise>
+		</choice>
+		<set-variable value="#[!isEmpty('')]" doc:name="Set Variable" doc:id="33405087-f804-4eed-88ac-332a17b4e7c3" variableName="check"/>
+		<ee:transform doc:name="Transform Message" doc:id="b2f9a1d4-2979-42e9-9300-bd760ee8ccd9" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="client_id" ><![CDATA[%dw 2.0
+import fromBase64 from dw::core::Binaries
+output application/json
+
+var encoded = (attributes.headers['authorization'] splitBy(' '))[1]
+var decoded =  fromBase64(encoded)
+var clientid = (decoded splitBy(':'))[0]
+---
+clientid]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<set-variable value="#[if (isEmpty(attributes.headers['client_secret'])) '' else attributes.headers['client_secret'] as String]" doc:name="client_secret" doc:id="1308f2ee-a921-46f1-ad99-199fd26011b2" variableName="client_secret"/>
+		<set-variable value='#[attributes.method as String]' doc:name="method" doc:id="229f29ba-5c52-49c2-809d-9c94d892649c" variableName="method"/>
+		<set-variable value='#[attributes.relativePath as String]' doc:name="resource" doc:id="16df5280-f26b-4513-9f4a-f97287a3c360" variableName="resource"/>
+		<foreach doc:name="For Each" doc:id="76ae7868-5968-4deb-b7a0-f880e8a35aad" collection="vars.json.Users">
+			<logger level="INFO" doc:name="Logger" doc:id="581cc0e6-49d5-468f-a37c-d7e39ecb5a23" message='#["printing payload" : payload]' />
+			<ee:transform doc:name="Transform Message" doc:id="a994191e-7aa3-487b-9efb-8455c3bc0f6b">
+			<ee:message>
+			</ee:message>
+				<ee:variables>
+					<ee:set-variable variableName="results"><![CDATA[%dw 2.0
+output application/json
+var client_id = vars.client_id default ''
+---
+{allowedClient: if (isEmpty(vars.results) or not vars.results.allowedClient )
+	(((payload.id matches vars.client_secret) or (payload.id matches client_id))
+		and ((payload.allowedResources map ((vars.resource) matches $)) contains true)
+		and (payload.allowedMethods contains (vars.method)))
+	else	
+    vars.results.allowedClient
+}]]></ee:set-variable>
+				</ee:variables>
+		</ee:transform>
+		</foreach>
+		<remove-variable doc:name="Remove Variable" doc:id="d4808a38-03b5-4b5a-b136-8cde9b159e3f" variableName="client_secret"/>
+		<remove-variable doc:name="Remove Variable" doc:id="f440650d-104f-4caa-be75-0864210289cb" variableName="method"/>
+		<remove-variable doc:name="Remove Variable" doc:id="8d7eafda-f5ad-4755-85b2-296ea90b684b" variableName="resource"/>
+		<choice doc:name="Choice" doc:id="53cb2ade-cc34-4362-ade4-cde6637b0362" >
+			<when expression="#[vars.results.allowedClient == true]">
+				<set-payload value="#['funciona']" doc:name="Set Payload" doc:id="3690f51f-1407-49ad-a468-90ec2f3376c1" />
+			</when>
+			<otherwise >
+				<set-payload value="#['no jala']" doc:name="Set Payload" doc:id="7dae6f90-fd79-4cc5-8134-545236746ac3" />
+			</otherwise>
+		</choice>
+	</flow>
+</mule>
