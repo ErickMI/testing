@@ -74,5 +74,41 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
-
+<profiles>
+		<profile>
+		  <id>cloudhub</id>
+		  <build>
+		    <plugins>
+		      <plugin>
+		        <groupId>org.mule.tools.maven</groupId>
+		        <artifactId>mule-maven-plugin</artifactId>
+		        <version>${mule.maven.plugin.version}</version>
+				<extensions>true</extensions>
+		        <configuration>
+		          <deploymentType>cloudhub</deploymentType>
+		          <muleVersion>${app.runtime}</muleVersion> 
+		          <username>ericktestAP</username> 
+		          <password>ericktestAP01</password> 
+		          <applicationName>${artifactId}</applicationName>
+		          <environment>Sandbox</environment> 
+		          <businessGroup>IO</businessGroup>
+		          <region>us-e1.cloudhub.io</region>
+		          <uri>https://anypoint.mulesoft.com</uri> 
+		          <workerType>micro</workerType>
+		          <workers>1</workers>
+		        </configuration>
+		        <executions>
+		          <execution>
+		            <id>deploy</id>
+		            <phase>deploy</phase>
+		            <goals>
+		              <goal>deploy</goal>
+		            </goals>
+		          </execution>
+		        </executions>
+		      </plugin>
+		    </plugins>
+		  </build>
+		</profile>
+	</profiles>
 </project>
